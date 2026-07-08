@@ -4,8 +4,28 @@ $repoName = "word-chain-game"
 $project = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location -LiteralPath $project
 
-$git = (Get-Command git -ErrorAction Stop).Source
-$gh = (Get-Command gh -ErrorAction Stop).Source
+function Resolve-Tool($name, $fallbacks) {
+    $cmd = Get-Command $name -ErrorAction SilentlyContinue
+    if ($cmd) {
+        return $cmd.Source
+    }
+
+    foreach ($path in $fallbacks) {
+        if (Test-Path -LiteralPath $path) {
+            return $path
+        }
+    }
+
+    throw "$name was not found."
+}
+
+$git = Resolve-Tool "git" @(
+    "C:\Program Files\Git\cmd\git.exe",
+    "C:\Program Files\Git\bin\git.exe"
+)
+$gh = Resolve-Tool "gh" @(
+    "$env:LOCALAPPDATA\Microsoft\WinGet\Packages\GitHub.cli_Microsoft.Winget.Source_8wekyb3d8bbwe\bin\gh.exe"
+)
 
 $login = & $gh api user --jq ".login"
 if (-not $login) {
@@ -53,15 +73,17 @@ if (-not (Test-Path -LiteralPath (Join-Path $project ".git"))) {
 }
 
 & $git add .
-if (-not (& $git diff --cached --quiet)) {
+& $git diff --cached --quiet
+if ($LASTEXITCODE -ne 0) {
     & $git commit -m "Configure GitHub Pages URL"
 }
 
-$repoExists = $true
-& $gh repo view "$login/$repoName" *> $null
-if ($LASTEXITCODE -ne 0) {
-    $repoExists = $false
-}
+$repoExists = $false
+$previousErrorPreference = $ErrorActionPreference
+$ErrorActionPreference = "SilentlyContinue"
+& $gh repo view "$login/$repoName" 1>$null 2>$null
+$repoExists = ($LASTEXITCODE -eq 0)
+$ErrorActionPreference = $previousErrorPreference
 
 if (-not $repoExists) {
     & $gh repo create "$repoName" --public --source "." --remote origin --push --description "Korean word-chain browser game"
@@ -72,9 +94,16 @@ if (-not $repoExists) {
     & $git push -u origin main
 }
 
-& $gh api -X POST "repos/$login/$repoName/pages" -f source='{"branch":"main","path":"/"}' 2>$null
-if ($LASTEXITCODE -ne 0) {
-    & $gh api -X PUT "repos/$login/$repoName/pages" -f source='{"branch":"main","path":"/"}' 2>$null
+$pagesEnabled = $false
+$ErrorActionPreference = "SilentlyContinue"
+& $gh api "repos/$login/$repoName/pages" 1>$null 2>$null
+$pagesEnabled = ($LASTEXITCODE -eq 0)
+$ErrorActionPreference = $previousErrorPreference
+
+if (-not $pagesEnabled) {
+    & $gh api -X POST "repos/$login/$repoName/pages" -F "source[branch]=main" -F "source[path]=/" 1>$null
+} else {
+    & $gh api -X PUT "repos/$login/$repoName/pages" -F "source[branch]=main" -F "source[path]=/" 1>$null
 }
 
 Write-Host ""
