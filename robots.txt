@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://korean-word-chain-game-20260708.surge.sh/sitemap.xml
