@@ -86,13 +86,13 @@ $repoExists = ($LASTEXITCODE -eq 0)
 $ErrorActionPreference = $previousErrorPreference
 
 if (-not $repoExists) {
-    & $gh repo create "$repoName" --public --source "." --remote origin --push --description "Korean word-chain browser game"
-} else {
-    $remoteUrl = "https://github.com/$login/$repoName.git"
-    & $git remote remove origin 2>$null
-    & $git remote add origin $remoteUrl
-    & $git push -u origin main
+    & $gh repo create "$repoName" --public --description "Korean word-chain browser game"
 }
+
+$remoteUrl = "https://github.com/$login/$repoName.git"
+& $git remote remove origin 2>$null
+& $git remote add origin $remoteUrl
+& $git push -u origin main
 
 $pagesEnabled = $false
 $ErrorActionPreference = "SilentlyContinue"
