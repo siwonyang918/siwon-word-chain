@@ -1,15 +1,13 @@
 // ==========================================
 // 게임 상태 관리 변수 리스트
 // ==========================================
-let wordPools = { easy: [], normal: [], hard: [], expert: [] };
-let oneShotWords = [];
+let wordPool = [];
 let missionLetters = [];
 
 let currentScore = 0;
 let currentMission = "";
 let usedWords = new Set();
 let lastWord = "";
-let currentDifficulty = "normal";
 
 let timeLeft = 10;
 let timerInterval = null;
@@ -20,7 +18,6 @@ let isPlayerTurn = true;
 const scoreDisplay = document.getElementById("score-display");
 const timeDisplay = document.getElementById("time-display");
 const missionDisplay = document.getElementById("mission-display");
-const difficultySelect = document.getElementById("difficulty-select");
 const startBtn = document.getElementById("start-btn");
 const chatWindow = document.getElementById("chat-window");
 const wordInput = document.getElementById("word-input");
@@ -46,14 +43,7 @@ async function fetchTxtFile(filePath) {
 
 // 모든 단어 데이터 및 미션 데이터를 설정 파일에서 로드하는 함수
 async function loadGameData() {
-    // 난이도별 단어 로드
-    wordPools.easy = await fetchTxtFile("words/easy.txt");
-    wordPools.normal = await fetchTxtFile("words/normal.txt");
-    wordPools.hard = await fetchTxtFile("words/hard.txt");
-    wordPools.expert = await fetchTxtFile("words/expert.txt");
-    
-    // 한방 단어 로드
-    oneShotWords = await fetchTxtFile("words/oneShot.txt");
+    wordPool = await fetchTxtFile("words/words.txt");
 
     // 미션 글자 JSON 로드
     try {
@@ -80,8 +70,7 @@ async function startGame() {
     currentScore = 0;
     scoreDisplay.textContent = currentScore;
     
-    currentDifficulty = difficultySelect.value;
-    addSystemMessage(`게임이 시작되었습니다! (난이도: ${difficultySelect.options[difficultySelect.selectedIndex].text})`);
+    addSystemMessage("게임이 시작되었습니다!");
     
     // 데이터 불러오기 완료 확인 후 턴 시작
     await loadGameData();
@@ -162,11 +151,6 @@ function validateWord(word) {
     return true;
 }
 
-// 한방 단어에 포함되는지 확인하는 검사 함수
-function checkOneShotWord(word) {
-    return oneShotWords.includes(word);
-}
-
 // 플레이어의 입력 속도 및 미션 성공 여부를 계산하여 점수를 더해주는 함수
 function calculateScore(word) {
     const elapsedTime = (Date.now() - turnStartTime) / 1000;
@@ -189,28 +173,12 @@ function calculateScore(word) {
     scoreDisplay.textContent = currentScore;
 }
 
-// 난이도에 따라 조합된 단어 주머니(Pool)를 생성하는 함수
-function getBotWordPool() {
-    let combinedPool = [...wordPools.easy];
-    if (currentDifficulty === "normal" || currentDifficulty === "hard" || currentDifficulty === "expert") {
-        combinedPool = combinedPool.concat(wordPools.normal);
-    }
-    if (currentDifficulty === "hard" || currentDifficulty === "expert") {
-        combinedPool = combinedPool.concat(wordPools.hard);
-    }
-    if (currentDifficulty === "expert") {
-        combinedPool = combinedPool.concat(wordPools.expert);
-    }
-    return combinedPool;
-}
-
 // 봇이 규칙에 맞는 단어를 우선순위(길이 등)에 따라 선택하는 AI 함수
 function selectBotWord() {
-    const pool = getBotWordPool();
     const requiredChar = lastWord.charAt(lastWord.length - 1);
     
     // 조건 1 & 2: 시작 글자가 맞고 아직 사용하지 않은 단어들만 필터링
-    let availableWords = pool.filter(word => word.charAt(0) === requiredChar && !usedWords.has(word));
+    let availableWords = wordPool.filter(word => word.charAt(0) === requiredChar && !usedWords.has(word));
 
     if (availableWords.length === 0) return null;
 
@@ -224,15 +192,10 @@ function selectBotWord() {
     return availableWords[0];
 }
 
-// 봇의 난이도별 생각하는 시간(딜레이)을 계산하여 반환하는 함수
+// 봇의 생각하는 시간(딜레이)을 계산하여 반환하는 함수
 function getBotDelay() {
-    let min = 2, max = 4;
-    if (currentDifficulty === "easy") { min = 3; max = 6; }
-    else if (currentDifficulty === "normal") { min = 2; max = 4; }
-    else if (currentDifficulty === "hard") { min = 1; max = 2; }
-    else if (currentDifficulty === "expert") { min = 0.5; max = 1; }
-
-    // min과 max 사이의 무작위 밀리초 계산
+    const min = 2;
+    const max = 4;
     return (Math.random() * (max - min) + min) * 1000;
 }
 
@@ -250,13 +213,6 @@ function handlePlayerInput() {
     addChatMessage(word, "player");
     usedWords.add(word);
     lastWord = word;
-
-    // 한방단어 체크
-    if (checkOneShotWord(word)) {
-        addSystemMessage(`💥 한방 단어 '${word}' 사용!`);
-        endGame("한방 단어를 사용하여 플레이어가 즉시 승리했습니다!");
-        return;
-    }
 
     calculateScore(word);
     
@@ -281,13 +237,6 @@ function botTurn() {
         addChatMessage(botWord, "bot");
         usedWords.add(botWord);
         lastWord = botWord;
-
-        // 봇이 한방 단어를 쓴 경우
-        if (checkOneShotWord(botWord)) {
-            addSystemMessage(`💥 봇이 한방 단어 '${botWord}'을(를) 사용했습니다!`);
-            endGame("봇이 한방 단어를 사용하여 플레이어가 패배했습니다.");
-            return;
-        }
 
         // 플레이어의 턴으로 전환
         isPlayerTurn = true;
