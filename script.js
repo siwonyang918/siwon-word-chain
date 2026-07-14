@@ -2,6 +2,7 @@
 // 게임 상태 관리 변수 리스트
 // ==========================================
 let wordPool = [];
+let wordSet = new Set();
 let missionLetters = [];
 
 let currentScore = 0;
@@ -62,6 +63,7 @@ function removeDuplicateWords(words) {
 // 모든 단어 데이터 및 미션 데이터를 설정 파일에서 로드하는 함수
 async function loadGameData() {
     wordPool = await fetchTxtFile("words/words.txt");
+    wordSet = new Set(wordPool);
 
     // 미션 글자 JSON 로드
     try {
@@ -151,6 +153,11 @@ function changeMissionLetter() {
 function validateWord(word) {
     if (word.length < 2) {
         addSystemMessage("단어는 최소 2글자 이상이어야 합니다.");
+        return false;
+    }
+    if (!wordSet.has(word)) {
+        addSystemMessage(`'${word}'은(는) 단어장에 없는 단어입니다! (패배)`);
+        endGame("단어장에 없는 단어를 입력하여 패배했습니다.");
         return false;
     }
     if (usedWords.has(word)) {
