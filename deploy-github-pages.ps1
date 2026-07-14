@@ -4,6 +4,30 @@ $repoName = "word-chain-game"
 $project = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location -LiteralPath $project
 
+function Remove-DuplicateWordFile($path) {
+    if (-not (Test-Path -LiteralPath $path)) {
+        return
+    }
+
+    $seenWords = [System.Collections.Generic.HashSet[string]]::new()
+    $uniqueWords = [System.Collections.Generic.List[string]]::new()
+
+    foreach ($line in Get-Content -LiteralPath $path -Encoding UTF8) {
+        $word = $line.TrimStart([char]0xFEFF).Trim()
+        if ($word.Length -eq 0) {
+            continue
+        }
+
+        if ($seenWords.Add($word)) {
+            [void]$uniqueWords.Add($word)
+        }
+    }
+
+    Set-Content -LiteralPath $path -Value $uniqueWords -Encoding UTF8
+}
+
+Remove-DuplicateWordFile (Join-Path $project "words\words.txt")
+
 function Resolve-Tool($name, $fallbacks) {
     $cmd = Get-Command $name -ErrorAction SilentlyContinue
     if ($cmd) {

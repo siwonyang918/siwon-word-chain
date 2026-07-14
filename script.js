@@ -33,12 +33,30 @@ async function fetchTxtFile(filePath) {
         const response = await fetch(filePath);
         if (!response.ok) return [];
         const text = await response.text();
-        // 줄바꿈 문자로 분리하고 공백 및 빈 줄 제거 후 배열 반환
-        return text.split(/\r?\n/).map(word => word.trim()).filter(word => word.length > 0);
+        const words = text
+            .split(/\r?\n/)
+            .map(word => word.replace(/^\uFEFF/, "").trim())
+            .filter(word => word.length > 0);
+
+        return removeDuplicateWords(words);
     } catch (error) {
         console.error(`${filePath} 파일을 불러오는데 실패했습니다:`, error);
         return [];
     }
+}
+
+// 단어장에 같은 단어가 여러 번 있어도 처음 나온 1개만 사용합니다.
+function removeDuplicateWords(words) {
+    const uniqueWords = [];
+    const seenWords = new Set();
+
+    for (const word of words) {
+        if (seenWords.has(word)) continue;
+        seenWords.add(word);
+        uniqueWords.push(word);
+    }
+
+    return uniqueWords;
 }
 
 // 모든 단어 데이터 및 미션 데이터를 설정 파일에서 로드하는 함수
