@@ -1,4 +1,4 @@
 ﻿User-agent: *
 Allow: /
 
-Sitemap: https://siwonyang918.github.io/word-chain-game/sitemap.xml
+Sitemap: https://siwonyang918.github.io/siwon-word-chain/sitemap.xml

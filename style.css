@@ -1,71 +1,172 @@
-/* 기본 스타일 초기화 */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Malgun Gothic', sans-serif;
+    font-family: "Malgun Gothic", sans-serif;
 }
 
 body {
-    background-color: #f0f2f5;
+    background-color: #eef1f4;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
 }
 
-/* 메인 게임 컨테이너 (모바일/PC 공용 크기 제한) */
 #game-container {
     width: 100%;
-    max-width: 450px;
+    max-width: 470px;
     height: 100vh;
-    max-height: 800px;
-    background-color: #b2c7da; /* 메신저 느낌의 배경색 */
+    max-height: 820px;
+    background-color: #b7c9d8;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 6px 18px rgba(20, 33, 45, 0.16);
 }
 
-/* 상단 정보창 */
 #game-header {
     background-color: #ffffff;
-    padding: 15px;
-    border-bottom: 1px solid #ddd;
+    padding: 14px;
+    border-bottom: 1px solid #d9dee4;
+}
+
+#title-row,
+.header-row,
+.online-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+#title-row {
+    margin-bottom: 10px;
+}
+
+h1 {
+    font-size: 20px;
+    line-height: 1.2;
+    color: #1d2a34;
+}
+
+#connection-pill {
+    min-width: 58px;
+    padding: 5px 8px;
+    border-radius: 999px;
+    background-color: #e8eef3;
+    color: #324858;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+}
+
+#mode-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 10px;
+    padding: 4px;
+    border: 1px solid #dbe1e7;
+    border-radius: 8px;
+    background-color: #f5f7f9;
+}
+
+button {
+    border: 0;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.mode-btn {
+    padding: 8px;
+    background-color: transparent;
+    color: #4b5f70;
+}
+
+.mode-btn.active {
+    background-color: #1f7a6c;
+    color: #ffffff;
+}
+
+#online-panel {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #dce4ea;
+    border-radius: 8px;
+    background-color: #f8fafb;
+}
+
+#online-panel[hidden] {
+    display: none;
+}
+
+.online-row + .online-row {
+    margin-top: 8px;
+}
+
+#create-room-btn,
+#join-room-btn,
+#copy-link-btn {
+    flex: 0 0 auto;
+    padding: 9px 10px;
+    background-color: #2f8f83;
+    color: #ffffff;
+}
+
+#copy-link-btn {
+    background-color: #415a77;
+}
+
+#room-code-input,
+#invite-link-input {
+    min-width: 0;
+    flex: 1;
+    padding: 9px 10px;
+    border: 1px solid #d2dbe2;
+    border-radius: 6px;
+    outline: none;
+    font-size: 13px;
+}
+
+#online-status {
+    margin-top: 8px;
+    color: #516577;
+    font-size: 12px;
+    line-height: 1.4;
 }
 
 .header-row {
-    display: flex;
-    justify-content: space-between;
     margin-bottom: 8px;
 }
 
 .info-box {
     font-size: 14px;
-    font-weight: bold;
-    color: #333;
+    font-weight: 700;
+    color: #2c3943;
 }
 
 #mission-display {
-    color: #e74c3c;
+    color: #d8473f;
     font-size: 16px;
 }
 
 #start-btn {
     width: 100%;
-    padding: 8px;
-    background-color: #2ecc71;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-weight: bold;
-    cursor: pointer;
+    padding: 9px;
+    background-color: #32b56f;
+    color: #ffffff;
 }
 
-#start-btn:hover {
-    background-color: #27ae60;
+#start-btn:hover:not(:disabled) {
+    background-color: #279c5e;
 }
 
-/* 채팅 화면창 (스크롤 가능) */
 #chat-window {
     flex: 1;
     overflow-y: auto;
@@ -75,68 +176,90 @@ body {
     gap: 12px;
 }
 
-/* 말풍선 기본 스타일 */
 .message {
-    max-width: 70%;
+    max-width: 74%;
     padding: 10px 14px;
     border-radius: 15px;
     font-size: 15px;
-    line-height: 1.4;
+    line-height: 1.45;
     word-break: break-all;
+    white-space: pre-line;
 }
 
-/* 플레이어 말풍선 (우측) */
 .player-message {
-    background-color: #ffeb33;
+    background-color: #ffec45;
     align-self: flex-end;
-    border-top-right-radius: 0px;
+    border-top-right-radius: 0;
 }
 
-/* 봇 말풍선 (좌측) */
-.bot-message {
+.bot-message,
+.remote-message {
     background-color: #ffffff;
     align-self: flex-start;
-    border-top-left-radius: 0px;
+    border-top-left-radius: 0;
 }
 
-/* 시스템 메시지 (중앙) */
 .system-message {
-    background-color: rgba(0, 0, 0, 0.1);
+    max-width: 92%;
+    background-color: rgba(29, 42, 52, 0.2);
     color: #ffffff;
     font-size: 12px;
-    padding: 5px 10px;
+    line-height: 1.4;
+    padding: 6px 10px;
     border-radius: 10px;
     align-self: center;
     text-align: center;
 }
 
-/* 하단 입력창 영역 */
 #input-container {
     display: flex;
     background-color: #ffffff;
     padding: 10px;
     gap: 8px;
+    border-top: 1px solid #dde4ea;
 }
 
 #word-input {
     flex: 1;
+    min-width: 0;
     padding: 12px;
-    border: 1px solid #ddd;
+    border: 1px solid #d6dde3;
     border-radius: 20px;
     outline: none;
     font-size: 15px;
 }
 
 #send-btn {
-    padding: 0 20px;
-    background-color: #ffeb33;
-    border: 1px solid #ddd;
+    min-width: 72px;
+    padding: 0 18px;
+    background-color: #ffec45;
+    border: 1px solid #d6dde3;
     border-radius: 20px;
-    font-weight: bold;
-    cursor: pointer;
+    color: #1e2b33;
 }
 
-#send-btn:disabled, #word-input:disabled {
-    background-color: #eaeaea;
-    cursor: not-allowed;
+#send-btn:disabled,
+#word-input:disabled {
+    background-color: #eceff2;
+    color: #7c8b96;
+}
+
+@media (max-width: 420px) {
+    #game-header {
+        padding: 12px;
+    }
+
+    h1 {
+        font-size: 18px;
+    }
+
+    .online-row {
+        flex-wrap: wrap;
+    }
+
+    #room-code-input,
+    #invite-link-input {
+        flex-basis: 100%;
+        order: -1;
+    }
 }

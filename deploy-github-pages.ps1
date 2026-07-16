@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 
-$repoName = "word-chain-game"
+$repoName = "siwon-word-chain"
 $project = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location -LiteralPath $project
 
@@ -12,17 +12,17 @@ function Remove-DuplicateWordFile($path) {
     $seenWords = [System.Collections.Generic.HashSet[string]]::new()
     $uniqueWords = [System.Collections.Generic.List[string]]::new()
 
-    foreach ($line in Get-Content -LiteralPath $path -Encoding UTF8) {
-        foreach ($part in ($line -split "/")) {
+    $text = Get-Content -LiteralPath $path -Raw -Encoding UTF8
+
+    foreach ($part in ($text -split "[/\r\n]+")) {
             $word = $part.TrimStart([char]0xFEFF).Trim()
-            if ($word.Length -eq 0) {
+            if ($word.Length -lt 2 -or $word.Contains("?")) {
                 continue
             }
 
             if ($seenWords.Add($word)) {
                 [void]$uniqueWords.Add($word)
             }
-        }
     }
 
     Set-Content -LiteralPath $path -Value $uniqueWords -Encoding UTF8

@@ -3,29 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>끝말잇기 웹게임</title>
-    <meta name="description" content="봇과 대결하는 한국어 끝말잇기 웹게임입니다. 하나의 단어장으로 제한 시간 안에 단어를 이어가며 미션 글자 점수를 겨뤄보세요.">
-    <meta name="keywords" content="끝말잇기, 끝말잇기 게임, 한국어 게임, 단어 게임, 웹게임">
+    <title>siwon 끝말잇기</title>
+    <meta name="description" content="친구 또는 봇과 대결하는 한국어 끝말잇기 웹게임입니다. 하나의 단어장으로 제한 시간 안에 단어를 이어가며 미션 글자 점수를 겨뤄보세요.">
+    <meta name="keywords" content="siwon 끝말잇기, 끝말잇기, 끝말잇기 게임, 한국어 게임, 단어 게임, 웹게임">
     <meta name="robots" content="index, follow">
-            <link rel="canonical" href="https://siwonyang918.github.io/word-chain-game/">
-<meta property="og:title" content="끝말잇기 웹게임">
-    <meta property="og:description" content="하나의 단어장으로 봇과 대결하는 한국어 끝말잇기 웹게임입니다.">
+        <link rel="canonical" href="https://siwonyang918.github.io/siwon-word-chain/">
+<meta property="og:title" content="siwon 끝말잇기">
+    <meta property="og:description" content="친구 또는 봇과 대결하는 한국어 끝말잇기 웹게임입니다.">
     <meta property="og:type" content="website">
-            <meta property="og:url" content="https://siwonyang918.github.io/word-chain-game/">
+        <meta property="og:url" content="https://siwonyang918.github.io/siwon-word-chain/">
 <meta name="twitter:card" content="summary">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="game-container">
         <header id="game-header">
+            <div id="title-row">
+                <h1>siwon 끝말잇기</h1>
+                <div id="connection-pill">혼자</div>
+            </div>
+
+            <div id="mode-tabs" aria-label="게임 모드">
+                <button id="solo-mode-btn" class="mode-btn active" type="button">혼자</button>
+                <button id="online-mode-btn" class="mode-btn" type="button">친구</button>
+            </div>
+
+            <section id="online-panel" hidden>
+                <div class="online-row">
+                    <button id="create-room-btn" type="button">방 만들기</button>
+                    <input id="room-code-input" type="text" placeholder="방 코드 또는 초대 링크">
+                    <button id="join-room-btn" type="button">참가</button>
+                </div>
+                <div class="online-row invite-row">
+                    <input id="invite-link-input" type="text" readonly placeholder="친구에게 보낼 링크">
+                    <button id="copy-link-btn" type="button">복사</button>
+                </div>
+                <div id="online-status">친구 모드에서 방을 만들거나 참가하세요.</div>
+            </section>
+
             <div class="header-row">
-                <div class="info-box">🎯 점수: <span id="score-display">0</span>점</div>
-                <div class="info-box">⏱️ 남은 시간: <span id="time-display">10</span>초</div>
+                <div class="info-box">점수: <span id="score-display">0</span>점</div>
+                <div class="info-box">남은 시간: <span id="time-display">10</span>초</div>
             </div>
             <div class="header-row">
-                <div class="info-box">⭐ 미션 글자: <span id="mission-display">-</span></div>
+                <div class="info-box">미션 글자: <span id="mission-display">-</span></div>
             </div>
-            <button id="start-btn">게임 시작</button>
+            <button id="start-btn" type="button">게임 시작</button>
         </header>
 
         <main id="chat-window">
@@ -34,12 +57,12 @@
 
         <footer id="input-container">
             <input type="text" id="word-input" placeholder="단어를 입력하세요..." disabled>
-            <button id="send-btn" disabled>전송</button>
+            <button id="send-btn" disabled type="button">전송</button>
         </footer>
     </div>
 
+    <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
-
 
