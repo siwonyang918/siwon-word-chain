@@ -13,13 +13,15 @@ function Remove-DuplicateWordFile($path) {
     $uniqueWords = [System.Collections.Generic.List[string]]::new()
 
     foreach ($line in Get-Content -LiteralPath $path -Encoding UTF8) {
-        $word = $line.TrimStart([char]0xFEFF).Trim()
-        if ($word.Length -eq 0) {
-            continue
-        }
+        foreach ($part in ($line -split "/")) {
+            $word = $part.TrimStart([char]0xFEFF).Trim()
+            if ($word.Length -eq 0) {
+                continue
+            }
 
-        if ($seenWords.Add($word)) {
-            [void]$uniqueWords.Add($word)
+            if ($seenWords.Add($word)) {
+                [void]$uniqueWords.Add($word)
+            }
         }
     }
 

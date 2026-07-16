@@ -35,7 +35,7 @@ async function fetchTxtFile(filePath) {
         if (!response.ok) return [];
         const text = await response.text();
         const words = text
-            .split(/\r?\n/)
+            .split(/[\/\r\n]+/)
             .map(word => word.replace(/^\uFEFF/, "").trim())
             .filter(word => word.length > 0);
 
