@@ -167,12 +167,65 @@ function extractRoomCode(value) {
         const url = new URL(trimmedValue);
         return url.searchParams.get("room") || "";
     } catch {
+        return trimmedValue.startsWith(ROOM_PREFIX) ? trimmedValue : "";
+    }
+}
+
+function extractRoomName(value) {
+    const trimmedValue = value.trim();
+    if (!trimmedValue) return "";
+
+    try {
+        const url = new URL(trimmedValue);
+        return url.searchParams.get("name") || "";
+    } catch {
         return trimmedValue;
     }
 }
 
-function getInviteLink(roomCode) {
+function cleanRoomName(value) {
+    return value
+        .replace(/\s+/g, "-")
+        .replace(/[^\p{L}\p{N}_-]/gu, "")
+        .slice(0, 40);
+}
+
+function encodeRoomNameToId(roomName) {
+    const bytes = new TextEncoder().encode(roomName);
+    let binary = "";
+
+    for (const byte of bytes) {
+        binary += String.fromCharCode(byte);
+    }
+
+    return `${ROOM_PREFIX}name-${btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "")}`;
+}
+
+function getRoomCodeFromInput(value, allowRandomRoom) {
+    const directRoomCode = extractRoomCode(value);
+    if (directRoomCode) return directRoomCode;
+
+    const cleanedName = cleanRoomName(extractRoomName(value));
+    if (cleanedName) return encodeRoomNameToId(cleanedName);
+
+    return allowRandomRoom ? generateRoomCode() : "";
+}
+
+function getRoomNameFromInput(value) {
+    const directRoomCode = extractRoomCode(value);
+    if (directRoomCode) return "";
+
+    return cleanRoomName(extractRoomName(value));
+}
+
+function getInviteLink(roomCode, roomName) {
     const url = new URL(window.location.href);
+    url.search = "";
+
+    if (roomName) {
+        return `${url.origin}${url.pathname}?name=${roomName}`;
+    }
+
     url.searchParams.set("room", roomCode);
     return url.toString();
 }
@@ -185,9 +238,10 @@ function createOnlineRoom() {
 
     resetOnlineConnection();
     onlineRole = "host";
-    currentRoomCode = generateRoomCode();
-    roomCodeInput.value = currentRoomCode;
-    inviteLinkInput.value = getInviteLink(currentRoomCode);
+    const roomName = getRoomNameFromInput(roomCodeInput.value);
+    currentRoomCode = getRoomCodeFromInput(roomCodeInput.value, true);
+    roomCodeInput.value = roomName || currentRoomCode;
+    inviteLinkInput.value = getInviteLink(currentRoomCode, roomName);
     setOnlineStatus("방을 여는 중입니다...");
 
     peer = new Peer(currentRoomCode);
@@ -208,7 +262,8 @@ function createOnlineRoom() {
 
     peer.on("error", error => {
         console.error(error);
-        setOnlineStatus("방 만들기에 실패했습니다. 다시 시도해 주세요.");
+        const isTaken = error && error.type === "unavailable-id";
+        setOnlineStatus(isTaken ? "이미 사용 중인 방 이름입니다. 다른 이름으로 다시 만들어 주세요." : "방 만들기에 실패했습니다. 다시 시도해 주세요.");
     });
 }
 
@@ -218,7 +273,7 @@ function joinOnlineRoom() {
         return;
     }
 
-    const roomCode = extractRoomCode(roomCodeInput.value);
+    const roomCode = getRoomCodeFromInput(roomCodeInput.value, false);
     if (!roomCode) {
         setOnlineStatus("방 코드나 초대 링크를 입력해 주세요.");
         return;
