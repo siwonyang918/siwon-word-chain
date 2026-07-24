@@ -24,6 +24,7 @@ let onlineScores = { host: 0, guest: 0 };
 let currentRoomCode = "";
 
 const TURN_SECONDS = 10;
+const BOT_MAX_WORD_LENGTH = 10;
 const ROOM_PREFIX = "siwon-word-chain-";
 
 const scoreDisplay = document.getElementById("score-display");
@@ -530,11 +531,11 @@ function calculateTurnScore(word) {
 function selectBotWord() {
     const requiredChar = lastWord.charAt(lastWord.length - 1);
     const candidateWords = wordBuckets.get(requiredChar) || [];
-    const availableWords = candidateWords.filter(word => !usedWords.has(word));
+    const availableWords = candidateWords.filter(word => word.length <= BOT_MAX_WORD_LENGTH && !usedWords.has(word));
 
     if (availableWords.length === 0) return null;
 
-    availableWords.sort((a, b) => Math.random() > 0.2 ? b.length - a.length : a.length - b.length);
+    availableWords.sort((a, b) => a.length - b.length || a.localeCompare(b, "ko"));
     return availableWords[0];
 }
 
